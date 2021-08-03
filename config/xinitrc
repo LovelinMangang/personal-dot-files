@@ -1,0 +1,4 @@
+. "$HOME/.xprofile"
+#spectrwm
+#qtile start
+dwm
