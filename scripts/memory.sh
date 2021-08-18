@@ -3,18 +3,13 @@
 mem() {
 used="$(free | grep Mem: | awk '{print $3}')"
 total="$(free | grep Mem: | awk '{print $2}')"
+human="$(free -h | grep Mem: | awk '{print $3}' | sed s/i//g)"
 
-#totalh="$(free -h | grep Mem: | awk '{print $2}' | sed 's/Gi/G/')"
-
-ram="$(( 200 * $used/$total - 100 * $used/$total ))% "
+ram="$(( 200 * $used/$total - 100 * $used/$total ))%  ($human)"
 
 echo $ram
 }
 
-echo " $(mem)"
+echo "$(mem)"
+#echo " $(mem)"
 
-case $BLOCK_BUTTON in
-    1) notify-send "RAM hogs" "$(ps axch -o cmd:15,%mem --sort=-%mem | head)";;
-    2) setsid -f st -e htop ;;
-    3) notify-send "/usr/local/bin/memory.sh" ;;
-esac
