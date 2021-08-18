@@ -98,7 +98,7 @@ upgrades(){
 #	    NETWORK
 ##############################
 networkicon() {
-wire="$(ip a | grep enp | grep inet | wc -l)"
+wire="$(ip a | grep "eth0\|enp" | grep inet | wc -l)"
 wifi="$(ip a | grep wlan | grep inet | wc -l)"
 
 if [ $wire = 1 ]; then
@@ -112,7 +112,7 @@ fi
 }
 
 ipaddress() {
-    address="$(ip a | grep 0.255 | grep -v wlp | cut -d ' ' -f6 | sed 's/\/24//')"
+    address="$(ip a | grep .255 | grep -v wlp | cut -d ' ' -f6 | sed 's/\/24//')"
     echo "$address"
 }
 
