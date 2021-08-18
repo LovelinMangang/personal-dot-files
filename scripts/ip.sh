@@ -1,6 +1,6 @@
 #!/bin/bash
 # icons depend on nerdfonts being installed
-ip="$(ip a | grep 0.255 | grep -v wlp | cut -d' ' -f6 | sed 's/\/24//')"
+ip="$(ip a | grep .255 | grep -v wlp | cut -d' ' -f6 | sed 's/\/24//')"
 
 echo $ip
 
