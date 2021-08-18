@@ -1,6 +1,6 @@
 #!/bin/bash
 
-weather=$(cat ~/.config/weather.txt | sed 20q | grep value | awk '{print $2 $3}' | sed 's/\"//g')
+weather=$(cat ~/.config/weather.txt | sed 22q | grep value | awk '{print $2 $3}' | sed 's/\"//g')
 
 temp=$(cat ~/.config/weather.txt | grep temp_F | awk '{print $2}' | sed 's/\"//g' | sed 's/,//')
 
