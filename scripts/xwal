@@ -1,10 +1,10 @@
 #!/bin/bash
-# requires feh
-# Script to automatically change the wallpaper and lock screen in spectrwm
+# requires xwallpaper
+# uncomment lines 6 and 21 for lockscreen (depends on imagemagick)
 
 # Directory Containing the Pictures
 BG="$HOME/.local/share/backgrounds"
-LK="$HOME/.local/share/lockscreen"
+#LK="$HOME/.local/share/lockscreen"
 # Command to Select wallpapers at random from the $DIR directory
 
 WAL=$(ls $BG/*.png | shuf -n1)
@@ -20,4 +20,3 @@ xwallpaper --zoom $BG/current-wallpaper.png
 #set blurred copy of desktop wallpaper as lockscreen
 
 #convert $BG/current-wallpaper.png -blur 0x3 $LK/locker.png -gravity center -composite -matte $LK/lockscreen.png
-
