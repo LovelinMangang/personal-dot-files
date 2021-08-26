@@ -44,7 +44,7 @@ set completeopt=menuone,longest " auto complete menu (It's pretty great)
 
 call plug#begin()
 " ColorScheme and theme
-Plug 'https://github.com/zchee/hybrid.nvim'
+"Plug 'https://github.com/zchee/hybrid.nvim'
 Plug 'https://github.com/bling/vim-airline'
 
 " File Manager incorporation
