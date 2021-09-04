@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#Root subvolume device
+rsvdv="$(df -Th | grep btrfs | grep /$ | cut -d' ' -f 1)"
+
+#Current date
+cdt=`date | sed 's/ /-/g'`
+
+#Root subvolume
+rsv="$(sudo btrfs subvolume list / | grep "level 5" | head -n1 | awk '{print $9}')"
+
+#Snapshot subvolume
+ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $9}')"
+
+#Number of root snapshots
+rsl="$(sudo btrfs subvolume list / | grep snapshots | grep root | wc -l)"
+
+#Oldest root snapshot
+ors="$(sudo btrfs subvolume list / | grep snapshots | grep root | awk '{print $NF}' | head -n1)"
+
+#mount Root subvolume device to /mnt
+sudo mount $rsvdv /mnt
+
+#MUST be in this directory to perform task
+cd /mnt
+
+#Create snapshot and place in snapshot directory
+sudo btrfs subvolume snapshot $rsv $ssv/root-$cdt
+
+#remove a snapshot if there are more than 10
+if [ "$rsl" -gt 10  ]; then
+	echo "removing oldest snapshot"
+	sudo btrfs subvolume delete $ors
+else
+	echo "less than 10 root snapshots"
+	echo "not deleting anything"
+fi
+
+
+
+cd $HOME
+sudo umount /mnt
+exit

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#home subvolume device
+hsvdv="$(df -Th | grep btrfs | grep home | cut -d' ' -f 1)"
+
+#current date
+cdt=`date | sed 's/ /-/g'`
+
+#home subvolume
+hsv="$(sudo btrfs subvolume list / | grep "level 5" | grep home | awk '{print $9}')"
+
+#snapshot subvolume
+ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $9}')"
+
+#number of home snapshots
+hsl="$(sudo btrfs subvolume list / | grep snapshots/ | grep home | wc -l)"
+
+#oldest home snapshot
+ohs="$(sudo btrfs subvolume list / | grep snapshots | grep home | awk '{print $NF}' | head -n1)"
+
+#Mount home subvolume to /mnt
+sudo mount $hsvdv /mnt
+
+#MUST be in /mnt to perform task
+cd /mnt
+
+#Make snapshot and place in snapshot directory
+sudo btrfs subvolume snapshot $hsv $ssv/home-$cdt
+
+#remove a home snapshot if there are more than 10
+if [ "$hsl" -gt 10 ]; then
+    echo "removing oldest snapshot"
+    sudo btrfs subvolume delete $ohs
+else
+    echo "less than 10 home snapshots"
+    echo "not deleting anything"
+fi
+
+cd $HOME
+
+sudo umount /mnt
+exit
