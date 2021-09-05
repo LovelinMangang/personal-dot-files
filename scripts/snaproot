@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#Number of snapshots allowed
+sn=5
+
+red='\033[0;31m'
+nc='\033[0m'
+yellow='\033[1;33m'
+
 #Root subvolume device
 rsvdv="$(df -Th | grep btrfs | grep /$ | cut -d' ' -f 1)"
 
@@ -27,13 +34,13 @@ cd /mnt
 #Create snapshot and place in snapshot directory
 sudo btrfs subvolume snapshot $rsv $ssv/root-$cdt
 
-#remove a snapshot if there are more than 10
-if [ "$rsl" -gt 10  ]; then
-	echo "removing oldest snapshot"
+#remove a snapshot if there are more than 5
+if [ "$rsl" -ge "$sn"  ]; then
+	printf "${red} removing oldest snapshot... ${nc}\n"
 	sudo btrfs subvolume delete $ors
 else
-	echo "less than 10 root snapshots"
-	echo "not deleting anything"
+	printf "${yellow} too few snapshots... ${nc}\n"
+	printf "${yellow} not deleting anything ${nc}\n"
 fi
 
 
