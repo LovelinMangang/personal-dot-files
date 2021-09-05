@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#number of snapshots allowed
+sn=5
+
+red='\033[0;31m'
+nc='\033[0m'
+yellow='\033[1;33m'
+
 #home subvolume device
 hsvdv="$(df -Th | grep btrfs | grep home | cut -d' ' -f 1)"
 
@@ -27,16 +34,17 @@ cd /mnt
 #Make snapshot and place in snapshot directory
 sudo btrfs subvolume snapshot $hsv $ssv/home-$cdt
 
-#remove a home snapshot if there are more than 10
-if [ "$hsl" -gt 10 ]; then
-    echo "removing oldest snapshot"
+#remove a home snapshot if there are more than 5
+if [ "$hsl" -ge "$sn" ]; then
+    printf "${red} removing oldest snapshot... ${nc}\n"
     sudo btrfs subvolume delete $ohs
 else
-    echo "less than 10 home snapshots"
-    echo "not deleting anything"
+    printf "${yellow} too few snapshots...\n"
+    printf "not deleting anything ${nc}\n"
 fi
 
 cd $HOME
 
 sudo umount /mnt
 exit
+
