@@ -1,0 +1,25 @@
+#!/bin/bash
+
+red='\033[0;31m'
+nc='\033[0m'
+yellow='\033[1;33m'
+
+#number of root snapshots
+rsl="$(sudo btrfs subvolume list / | grep snapshots | grep root | wc -l)"
+
+#number of home snapshots
+hsl="$(sudo btrfs subvolume list / | grep snapshot | grep home | wc -l)"
+
+printf ${red}"list of root snapshots:${yellow} $rsl ${nc}\n"
+
+#list of root snapshots by name
+sudo btrfs subvolume list / | grep snapshots | grep root | awk '{print $1"="$2" "$9}'
+
+echo ""
+
+printf ${red}"list of home snapshots:${yellow} $hsl ${nc}\n"
+
+#list of home snapshots by name
+sudo btrfs subvolume list / | grep snapshots | grep home | awk '{print $1"="$2" "$9}'
+
+
