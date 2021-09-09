@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #Number of snapshots allowed
 sn=5
 
@@ -26,12 +25,31 @@ rsl="$(sudo btrfs subvolume list / | grep snapshots | grep root | wc -l)"
 ors="$(sudo btrfs subvolume list / | grep snapshots | grep root | awk '{print $NF}' | head -n1)"
 
 #mount Root subvolume device to /mnt
-sudo mount $rsvdv /mnt
+if [ -e "$rsvdv" ]; then
+    sudo mount $rsvdv /mnt
+    printf "${yellow} mounted $rsvdv to /mnt${nc}\n"
+else
+    printf "${red} no btrfs drives found${nc}\n" && exit
+fi
 
 #MUST be in this directory to perform task
 cd /mnt
 
-#Create snapshot and place in snapshot directory
+# Check that root subvolume is found...
+if [ -e "$rsv" ]; then
+    printf "${yellow} root subvolume found${nc}\n"
+else
+    printf "${red} no root subvolume found... exiting${nc}\n" && exit 1
+fi
+
+# Check that snapshot subvolume is found...
+if [ -e "$ssv" ]; then
+    printf "${yellow} snapshot subvolume found${nc}\n"
+else
+    printf "${red} no snapshot subvolume found... exiting${nc}\n" && exit 1
+fi
+
+# Create snapshot of root subvolume and place in snapshot subvolume with date attached...
 sudo btrfs subvolume snapshot $rsv $ssv/root-$cdt
 
 #remove a snapshot if there are more than 5
@@ -47,4 +65,5 @@ fi
 
 cd $HOME
 sudo umount /mnt
+
 exit
