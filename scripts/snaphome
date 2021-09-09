@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 #number of snapshots allowed
 sn=5
 
@@ -26,10 +26,29 @@ hsl="$(sudo btrfs subvolume list / | grep snapshots/ | grep home | wc -l)"
 ohs="$(sudo btrfs subvolume list / | grep snapshots | grep home | awk '{print $NF}' | head -n1)"
 
 #Mount home subvolume to /mnt
-sudo mount $hsvdv /mnt
+if [ -e "$hsvdv" ]; then
+    sudo mount $hsvdv /mnt
+    printf "${yellow} mounted $hsvdv to /mnt${nc}\n"
+else
+    printf "${red} no btrfs drives found${nc}\n" && exit 1
+fi
 
 #MUST be in /mnt to perform task
 cd /mnt
+
+# Check home subvolume exists...
+if [ -e "$hsv" ]; then
+    printf "${yellow} found home subvolume...${nc}\n"
+else
+    printf "${red} no home subvolume found... exiting${nc}\n" && exit 1
+fi
+
+# check snapshot subvolume exists...
+if [ -e "$ssv" ]; then
+    printf "${yellow} found snapshot suvolume...${nc}\n"
+else
+    printf "${red} no snapshot subvolume found${nc}\n" && exit 1
+fi
 
 #Make snapshot and place in snapshot directory
 sudo btrfs subvolume snapshot $hsv $ssv/home-$cdt
@@ -47,4 +66,3 @@ cd $HOME
 
 sudo umount /mnt
 exit
-
