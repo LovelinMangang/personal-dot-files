@@ -14,10 +14,10 @@ hsvdv="$(df -Th | grep btrfs | grep home | cut -d' ' -f 1)"
 cdt=`date | sed 's/ /-/g'`
 
 #home subvolume
-hsv="$(sudo btrfs subvolume list / | grep "level 5" | grep home | awk '{print $9}')"
+hsv="$(sudo btrfs subvolume list / | grep "level 5" | grep home | awk '{print $NF}')"
 
 #snapshot subvolume
-ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $9}')"
+ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $NF}')"
 
 #number of home snapshots
 hsl="$(sudo btrfs subvolume list / | grep snapshots/ | grep home | wc -l)"
