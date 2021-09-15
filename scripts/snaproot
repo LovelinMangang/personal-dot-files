@@ -13,10 +13,10 @@ rsvdv="$(df -Th | grep btrfs | grep /$ | cut -d' ' -f 1)"
 cdt=`date | sed 's/ /-/g'`
 
 #Root subvolume
-rsv="$(sudo btrfs subvolume list / | grep "level 5" | head -n1 | awk '{print $9}')"
+rsv="$(sudo btrfs subvolume list / | grep "level 5" | head -n1 | awk '{print $NF}')"
 
 #Snapshot subvolume
-ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $9}')"
+ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $NF}')"
 
 #Number of root snapshots
 rsl="$(sudo btrfs subvolume list / | grep snapshots | grep root | wc -l)"
