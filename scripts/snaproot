@@ -2,34 +2,44 @@
 #Number of snapshots allowed
 sn=5
 
+#Declare colors
 red='\033[0;31m'
 nc='\033[0m'
 yellow='\033[1;33m'
+
+#are you root?
+runas=$(whoami)
+
+#check for Root
+if [ $runas != 'root' ]; then
+    printf "${red} command must be run as root...exiting${nc}\n" && exit 1
+fi
 
 #Root subvolume device
 rsvdv="$(df -Th | grep btrfs | grep /$ | cut -d' ' -f 1)"
 
 #Current date
-cdt=`date | sed 's/ /-/g'`
+cdt=`date +"%a-%b-%d-%Y-%T"`
 
 #Root subvolume
-rsv="$(sudo btrfs subvolume list / | grep "level 5" | head -n1 | awk '{print $NF}')"
+rsv="$(btrfs subvolume list / | awk '/level 5/ {print $NF}'| head -n1)"
 
 #Snapshot subvolume
-ssv="$(sudo btrfs subvolume list / | grep "level 5" | grep snapshot | awk '{print $NF}')"
+ssv="$(btrfs subvolume list / | awk '/level 5/ && /snap/ {print $NF}')"
 
 #Number of root snapshots
-rsl="$(sudo btrfs subvolume list / | grep snapshots | grep root | wc -l)"
+rsl="$(btrfs subvolume list / | awk '/snap/ && /root/' | wc -l)"
 
 #Oldest root snapshot
-ors="$(sudo btrfs subvolume list / | grep snapshots | grep root | awk '{print $NF}' | head -n1)"
+ors="$(btrfs subvolume list / | awk '/snap/ && /root/ {print $NF}' | head -n1)"
+
 
 #mount Root subvolume device to /mnt
 if [ -e "$rsvdv" ]; then
-    sudo mount $rsvdv /mnt
+    mount $rsvdv /mnt
     printf "${yellow} mounted $rsvdv to /mnt${nc}\n"
 else
-    printf "${red} no btrfs drives found${nc}\n" && exit
+    printf "${red} no btrfs drives found${nc}\n" && exit 1
 fi
 
 #MUST be in this directory to perform task
@@ -37,25 +47,25 @@ cd /mnt
 
 # Check that root subvolume is found...
 if [ -e "$rsv" ]; then
-    printf "${yellow} root subvolume found${nc}\n"
+    printf "${yellow} root subvolume found... $rsv${nc}\n"
 else
-    printf "${red} no root subvolume found... exiting${nc}\n" && exit 1
+    printf "${red} no root subvolume found... exiting${nc}\n" && umount /mnt && exit 1
 fi
 
 # Check that snapshot subvolume is found...
 if [ -e "$ssv" ]; then
-    printf "${yellow} snapshot subvolume found${nc}\n"
+    printf "${yellow} snapshot subvolume found$... $ssv${nc}\n"
 else
-    printf "${red} no snapshot subvolume found... exiting${nc}\n" && exit 1
+    printf "${red} no snapshot subvolume found... exiting${nc}\n" && umount /mnt && exit 1
 fi
 
 # Create snapshot of root subvolume and place in snapshot subvolume with date attached...
-sudo btrfs subvolume snapshot $rsv $ssv/root-$cdt
+btrfs subvolume snapshot $rsv $ssv/root-$cdt
 
 #remove a snapshot if there are more than 5
 if [ "$rsl" -ge "$sn"  ]; then
 	printf "${red} removing oldest snapshot... ${nc}\n"
-	sudo btrfs subvolume delete $ors
+	btrfs subvolume delete $ors
 else
 	printf "${yellow} too few snapshots... ${nc}\n"
 	printf "${yellow} not deleting anything ${nc}\n"
@@ -64,6 +74,6 @@ fi
 
 
 cd $HOME
-sudo umount /mnt
+umount /mnt
 
 exit
